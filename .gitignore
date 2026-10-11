@@ -1,0 +1,9 @@
+# 所有层级的 Python 虚拟环境
+**/.venv/
+**/venv/
+__pycache__/
+*.pyc
+
+# IDE 配置
+.idea/
+.vscode/
