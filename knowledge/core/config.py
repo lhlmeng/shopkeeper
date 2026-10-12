@@ -130,7 +130,11 @@ class Settings:
             app_port=_env_int("APP_PORT", 8011),
             log_level=_env("LOG_LEVEL", "INFO").upper(),
             openai_api_key=_env_first("OPENAI_API_KEY", "OPEN_API_KEY"),
-            openai_api_base=_env("OPENAI_API_BASE", "https://api.openai.com/v1"),
+            # 与下一行的 api_key 保持同样的容错：.env 里写的是 OPEN_API_BASE（少一个 I），
+            # 只认 OPENAI_API_BASE 会静默回落到 OpenAI 官方地址，导致 DashScope 的 key 被拒（401）。
+            openai_api_base=_env_first(
+                "OPENAI_API_BASE", "OPEN_API_BASE", default="https://api.openai.com/v1"
+            ),
             llm_default_model=_env("LLM_DEFAULT_MODEL", "gpt-4o-mini"),
             llm_default_temperature=_env_float("LLM_DEFAULT_TEMPERATURE", 0.0),
             vl_model=_env("VL_MODEL", _env("VISION_MODEL", "gpt-4o-mini")),
