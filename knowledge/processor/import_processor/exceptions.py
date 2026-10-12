@@ -4,14 +4,20 @@
 统一错误处理，提供更清晰的错误信息
 """
 
+from knowledge.core.exceptions import ApplicationError
 
-class ImportProcessError(Exception):
+
+class ImportProcessError(ApplicationError):
     """导入流程基础异常"""
 
     def __init__(self, message: str, node_name: str = "", cause: Exception = None):
         self.node_name = node_name
-        self.cause = cause
-        super().__init__(message)
+        super().__init__(
+            message,
+            code="import_process_error",
+            context={"node_name": node_name} if node_name else None,
+            cause=cause,
+        )
 
     def __str__(self):
         parts = []

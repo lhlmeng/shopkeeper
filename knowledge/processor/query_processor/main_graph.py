@@ -2,11 +2,10 @@
 
 使用 LangGraph 构建知识库查询工作流。
 """
-import logging
 
 from langgraph.graph import StateGraph, END
 from langgraph.graph.state import CompiledStateGraph
-from dotenv import load_dotenv
+from knowledge.core.logging import configure_logging
 from knowledge.processor.query_processor.nodes.answer_output_node import AnswerOutputNode
 from knowledge.processor.query_processor.nodes.hyde_search_node import HydeSearchNode
 from knowledge.processor.query_processor.nodes.item_name_confirmed_node import ItemNameConfirmedNode
@@ -15,10 +14,6 @@ from knowledge.processor.query_processor.nodes.rrf_merge_node import RrfMergeNod
 from knowledge.processor.query_processor.nodes.vector_search_node import VectorSearchNode
 from knowledge.processor.query_processor.nodes.web_search_node import WebSearchNode
 from knowledge.processor.query_processor.state import QueryGraphState
-
-# 加载环境变量
-load_dotenv()
-
 
 def route_after_item_confirm(state: QueryGraphState) -> bool:
     """商品名称确认后的路由逻辑。
@@ -129,7 +124,7 @@ def create_query_graph() -> CompiledStateGraph:
 query_app = create_query_graph()
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    configure_logging()
     print("=" * 60)
     print("开始测试: 查询流程主图 (main_graph)")
     print("=" * 60)
@@ -148,7 +143,7 @@ if __name__ == '__main__':
     #执行主流程
     result_1 = query_app.invoke(mock_state_1)
 
-    print(f"\n  【结果】:")
+    print("\n  【结果】:")
     print(f"  商品名: {result_1.get('item_names')}")
     print(f"  重写查询: {result_1.get('rewritten_query')}")
     answer_1 = result_1.get("answer", "")

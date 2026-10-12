@@ -3,7 +3,7 @@ from typing import Dict, Any, List
 
 from pymilvus import MilvusClient, DataType
 
-from knowledge.processor.import_processor.base import BaseNode, T
+from knowledge.processor.import_processor.base import BaseNode
 from knowledge.processor.import_processor.exceptions import StateFieldError, EmbeddingError, MilvusError
 from knowledge.processor.import_processor.state import ImportGraphState
 from knowledge.utils.clients.storage_clients import StorageClients

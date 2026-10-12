@@ -1,6 +1,6 @@
 from typing import List, Any, Dict, Tuple
 
-from knowledge.processor.query_processor.base import BaseNode, T
+from knowledge.processor.query_processor.base import BaseNode
 from knowledge.processor.query_processor.state import QueryGraphState
 
 

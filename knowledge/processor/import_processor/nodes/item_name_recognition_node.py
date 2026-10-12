@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 from typing import Tuple, Any, Dict, List
 
-from dns.message import IndexType
 from langchain_core.messages import SystemMessage, HumanMessage
 from pymilvus import DataType
 
@@ -243,7 +242,7 @@ class ItemNameRecognitionNode(BaseNode):
         try:
             with open(backup_file_path, "w", encoding="utf-8") as f:
                 json.dump(chunks, f, ensure_ascii=False, indent=4)
-        except Exception as e:
+        except Exception:
             self.logger.warning(f"{md_path_obj.stem}文件备份成chunks_item_name.json失败,但是不影响主流程")
 
 

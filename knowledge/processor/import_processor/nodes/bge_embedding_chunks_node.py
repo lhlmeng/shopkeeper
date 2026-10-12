@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
-from knowledge.processor.import_processor.base import BaseNode, T
+from knowledge.processor.import_processor.base import BaseNode
 from knowledge.processor.import_processor.exceptions import StateFieldError, ValidationError, EmbeddingError
 from knowledge.processor.import_processor.state import ImportGraphState
 from knowledge.utils.clients.ai_clients import AIClients

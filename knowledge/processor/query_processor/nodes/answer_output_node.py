@@ -1,9 +1,8 @@
 from typing import Dict, Any, List, Tuple
 
 from langchain_openai import ChatOpenAI
-from typer.cli import state
 
-from knowledge.processor.query_processor.base import BaseNode, T
+from knowledge.processor.query_processor.base import BaseNode
 from knowledge.processor.query_processor.state import QueryGraphState
 from knowledge.prompts.query_prompt import ANSWER_PROMPT
 from knowledge.utils.clients.ai_clients import AIClients
@@ -15,8 +14,6 @@ from knowledge.utils.task_util import set_task_result
 class AnswerOutputNode(BaseNode):
     name = "answer_output_node"
     def process(self, state: QueryGraphState) -> QueryGraphState:
-        #1. 获取用户的问题(重写后的问题)
-        user_query = state.get("rewritten_query")
         #获取task_id
         task_id = state.get("task_id")
         #2. 获取answer
@@ -180,7 +177,7 @@ class AnswerOutputNode(BaseNode):
         #1. 创建大模型对象
         try:
             llm_client = AIClients.get_llm_client(response_format=False)
-        except Exception as e:
+        except Exception:
             return "LLM暂无任何内容输出"
 
         llm_result = ""
@@ -200,7 +197,7 @@ class AnswerOutputNode(BaseNode):
         #1. 调用大模型
         try:
             llm_res = llm_client.invoke(prompt)
-        except Exception as e:
+        except Exception:
             return "LLM暂无任何内容输出"
         #2. 获取大模型输出的内容
         llm_content = llm_res.content

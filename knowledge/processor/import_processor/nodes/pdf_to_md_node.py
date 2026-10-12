@@ -1,10 +1,9 @@
-import logging
 import shutil
 import time
 import zipfile
 from pathlib import Path
 import requests
-from knowledge.processor.import_processor.base import BaseNode, T
+from knowledge.processor.import_processor.base import BaseNode
 from knowledge.processor.import_processor.config import ImportConfig
 from knowledge.processor.import_processor.exceptions import ValidationError
 from knowledge.processor.import_processor.state import ImportGraphState
@@ -208,7 +207,9 @@ class PdfToMdNode(BaseNode):
 
 if __name__ == '__main__':
 
-    logging.basicConfig(level=logging.DEBUG)
+    from knowledge.core.logging import configure_logging
+
+    configure_logging()
     node = PdfToMdNode()
 
     state = {

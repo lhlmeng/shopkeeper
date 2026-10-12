@@ -12,7 +12,7 @@ from knowledge.prompts.query_prompt import ITEM_NAME_SYSTEM_EXTRACT_TEMPLATE, IT
 from knowledge.utils.clients.ai_clients import AIClients
 from knowledge.utils.clients.storage_clients import StorageClients
 from knowledge.utils.embedding_util import generate_bge_m3_hybrid_vectors
-from knowledge.utils.milvus_util import create_hybrid_search_requests, execute_hybrid_search_query, milvus_client
+from knowledge.utils.milvus_util import create_hybrid_search_requests, execute_hybrid_search_query
 from knowledge.utils.mongo_history_util import get_recent_messages
 
 
@@ -33,10 +33,10 @@ class _ItemNameAligner:
         # 3. 分数差异化过滤
         #3.1 如果confirmed的长度大于1，则进行分数差异化过滤
         if len(confirmed) > 1:
-            final_confirmed = self._item_name_score_filter()
+            confirmed = self._item_name_score_filter(confirmed, search_result)
 
         # 4. 返回确定的confirmed容器和options容器
-        return confirmed,options
+        return confirmed, options
 
     def _search_vector(self, item_names:List[str]):
         """

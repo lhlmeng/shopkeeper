@@ -3,8 +3,10 @@
 统一错误处理，提供更清晰的错误信息。
 """
 
+from knowledge.core.exceptions import ApplicationError
 
-class QueryProcessError(Exception):
+
+class QueryProcessError(ApplicationError):
     """查询流程基础异常。
 
     Attributes:
@@ -27,8 +29,12 @@ class QueryProcessError(Exception):
             cause: 原始异常。
         """
         self.node_name = node_name
-        self.cause = cause
-        super().__init__(message)
+        super().__init__(
+            message,
+            code="query_process_error",
+            context={"node_name": node_name} if node_name else None,
+            cause=cause,
+        )
 
     def __str__(self):
         """格式化异常信息。

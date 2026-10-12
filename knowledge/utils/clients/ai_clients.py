@@ -3,15 +3,13 @@ from typing import Any, List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
-from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from openai import OpenAI
 from pymilvus.model.hybrid import BGEM3EmbeddingFunction
 from sentence_transformers import CrossEncoder
 
+from knowledge.core.config import get_settings
 from knowledge.utils.clients.base import BaseClientManager, logger
-
-load_dotenv()
 
 
 class _BgeCrossEncoderRerankClient:
@@ -81,8 +79,11 @@ class AIClients(BaseClientManager):
     @classmethod
     def _create_vlm_client(cls) -> OpenAI:
         try:
-            api_key = cls._require_env("OPEN_API_KEY")
-            base_url = cls._require_env("OPEN_API_BASE")
+            settings = get_settings()
+            api_key = settings.openai_api_key
+            base_url = settings.openai_api_base
+            if not api_key:
+                raise EnvironmentError("缺少必需的环境变量: OPENAI_API_KEY")
             client = OpenAI(api_key=api_key, base_url=base_url)
             logger.info(f"OpenAI 客户端初始化成功 (base_url={base_url})")
 
@@ -109,9 +110,12 @@ class AIClients(BaseClientManager):
     @classmethod
     def _create_llm_client(cls, response_format) -> ChatOpenAI:
         try:
-            api_key = cls._require_env("OPEN_API_KEY")
-            base_url = cls._require_env("OPEN_API_BASE")
-            model_name = cls._require_env('LLM_DEFAULT_MODEL')
+            settings = get_settings()
+            api_key = settings.openai_api_key
+            base_url = settings.openai_api_base
+            model_name = settings.llm_default_model
+            if not api_key:
+                raise EnvironmentError("缺少必需的环境变量: OPENAI_API_KEY")
 
             model_kwargs = {}
             if response_format:
@@ -124,7 +128,7 @@ class AIClients(BaseClientManager):
                 openai_api_base=base_url,
                 model_kwargs=model_kwargs
             )
-            logger.info(f"OpenAI LLM 客户端初始化成功")
+            logger.info("OpenAI LLM 客户端初始化成功")
             return llm_client
 
         except EnvironmentError:
@@ -146,11 +150,10 @@ class AIClients(BaseClientManager):
 
         try:
             # 1. 获取环境变量
-            model_name = cls._require_env('BGE_M3_PATH')
-            device = cls._require_env('BGE_DEVICE')
-            fp16_str = cls._require_env('BGE_FP16')
-
-            fp16 = fp16_str.lower() in ("true", "1")
+            settings = get_settings()
+            model_name = settings.bge_m3_path
+            device = settings.bge_device
+            fp16 = settings.bge_fp16
             # 2. 创建
             bge_m3_ef = BGEM3EmbeddingFunction(
                 model_name=model_name,
@@ -158,7 +161,7 @@ class AIClients(BaseClientManager):
                 use_fp16=fp16
             )
             return bge_m3_ef
-        except EnvironmentError as e:
+        except EnvironmentError:
             raise
 
         except Exception as e:
@@ -179,11 +182,10 @@ class AIClients(BaseClientManager):
 
         try:
             # 1. 获取环境变量
-            model_name_or_path = cls._require_env('BGE_RERANKER_LARGE')
-            device = cls._require_env('BGE_DEVICE')
-            fp16_str = cls._require_env('BGE_FP16')
-            # 与 BGE_M3 嵌入客户端一致：为 true/1 时启用半精度（此前误写成 false 时启用）
-            fp16 = fp16_str.lower() in ("true", "1")
+            settings = get_settings()
+            model_name_or_path = settings.bge_reranker_large
+            device = settings.bge_reranker_device
+            fp16 = settings.bge_reranker_fp16
 
             model_kwargs: dict = {}
             if fp16 and device != "cpu" and not str(device).lower().startswith("cpu"):
@@ -198,7 +200,7 @@ class AIClients(BaseClientManager):
             )
             logger.info("BGE 重排序客户端已使用 sentence-transformers CrossEncoder 初始化（兼容 transformers 5+）")
             return _BgeCrossEncoderRerankClient(cross)
-        except EnvironmentError as e:
+        except EnvironmentError:
             raise
 
         except Exception as e:

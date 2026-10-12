@@ -1,12 +1,11 @@
 import json
 import re
-from multiprocessing.process import parent_process
 from pathlib import Path
 from typing import Tuple, List, Dict, Any
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from knowledge.processor.import_processor.base import BaseNode, T
+from knowledge.processor.import_processor.base import BaseNode
 from knowledge.processor.import_processor.exceptions import StateFieldError
 from knowledge.processor.import_processor.state import ImportGraphState
 from knowledge.utils.markdown_util import MarkdownTableLinearizer
@@ -326,7 +325,7 @@ class DocumentSplitNode(BaseNode):
         try:
             with open(backup_file_path, "w", encoding="utf-8") as f:
                 json.dump(chunks, f, ensure_ascii=False, indent=4)
-        except Exception as e:
+        except Exception:
             self.logger.warning(f"{md_path_obj.stem}文件备份成chunks.json失败,但是不影响主流程")
 
 

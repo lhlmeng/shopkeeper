@@ -1,5 +1,4 @@
 import base64
-import logging
 import re
 from logging import Logger
 from pathlib import Path
@@ -7,7 +6,7 @@ from typing import Tuple, List, Dict
 
 from openai import OpenAI
 
-from knowledge.processor.import_processor.base import BaseNode, T
+from knowledge.processor.import_processor.base import BaseNode
 from knowledge.processor.import_processor.config import ImportConfig
 from knowledge.processor.import_processor.exceptions import StateFieldError, FileProcessingError
 from knowledge.processor.import_processor.state import ImportGraphState
@@ -342,7 +341,7 @@ class _ImageUploader:
                     object_name=object_name,
                     file_path=image_info.image_path
                 )
-            except Exception as e:
+            except Exception:
                 # 兜底使用图片的原路径
                 remote_urls[image_info.image_name] = image_info.image_path
                 continue
@@ -412,7 +411,9 @@ class MdImageNode(BaseNode):
 
 if __name__ == '__main__':
 
-    logging.basicConfig(level=logging.DEBUG)
+    from knowledge.core.logging import configure_logging
+
+    configure_logging()
 
     state = {
         "md_path":r"D:\PythonProject\shopkeeper\knowledge\processor\import_processor\output_dir\万用表RS-12的使用\万用表RS-12的使用.md"

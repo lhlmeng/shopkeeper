@@ -2,7 +2,7 @@ from typing import List
 
 from langchain_core.messages import SystemMessage, HumanMessage
 
-from knowledge.processor.query_processor.base import BaseNode, T
+from knowledge.processor.query_processor.base import BaseNode
 from knowledge.processor.query_processor.exceptions import StateFieldError, LLMError, EmbeddingError, MilvusError
 from knowledge.processor.query_processor.state import QueryGraphState
 from knowledge.prompts.query_prompt import HYDE_SYSTEM_PROMPT_TEMPLATE, HYDE_USER_PROMPT_TEMPLATE
@@ -64,7 +64,7 @@ class HydeSearchNode(BaseNode):
         item_names = state.get("item_names")
         # 2. 校验rewritten_query,item_names
         if not rewritten_query or not isinstance(rewritten_query, str):
-            self.logger.error(f"rewritten_query不能为空以及类型必须是str")
+            self.logger.error("rewritten_query不能为空以及类型必须是str")
             raise StateFieldError(node_name=self.name, field_name="rewritten_query", expected_type=str)
 
         if not item_names or not isinstance(item_names, list):

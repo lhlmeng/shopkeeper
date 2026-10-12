@@ -1,18 +1,16 @@
 import threading
-from typing import Optional
-from typing import TypeVar, Optional
 import logging
-
-logger = logging.getLogger(__name__)
+from typing import Optional
 
 from minio import Minio
 from pymilvus import MilvusClient
 from pymongo import MongoClient
 from pymongo.database import Database
-from dotenv import load_dotenv
+
+from knowledge.core.config import get_settings
 from knowledge.utils.clients.base import BaseClientManager
 
-load_dotenv()
+logger = logging.getLogger(__name__)
 
 
 class StorageClients(BaseClientManager):
@@ -36,12 +34,18 @@ class StorageClients(BaseClientManager):
     @classmethod
     def _create_minio_client(cls) -> Minio:
         try:
-            endpoint = cls._require_env("MINIO_ENDPOINT")
-            access_key = cls._require_env("MINIO_ACCESS_KEY")
-            secret_key = cls._require_env("MINIO_SECRET_KEY")
-            bucket_name = cls._require_env("MINIO_BUCKET_NAME")
+            settings = get_settings()
+            endpoint = settings.minio_endpoint
+            access_key = settings.minio_access_key
+            secret_key = settings.minio_secret_key
+            bucket_name = settings.minio_bucket_name
 
-            client = Minio(endpoint, access_key=access_key, secret_key=secret_key, secure=False)
+            client = Minio(
+                endpoint,
+                access_key=access_key,
+                secret_key=secret_key,
+                secure=settings.minio_secure,
+            )
 
             if not client.bucket_exists(bucket_name):
                 client.make_bucket(bucket_name)
@@ -66,8 +70,7 @@ class StorageClients(BaseClientManager):
     @classmethod
     def _create_milvus_client(cls) -> MilvusClient:
         try:
-
-            milvus_uri = cls._require_env('MILVUS_URL')
+            milvus_uri = get_settings().milvus_url
 
             milvus_client = MilvusClient(uri=milvus_uri)
 
@@ -88,8 +91,9 @@ class StorageClients(BaseClientManager):
     @classmethod
     def _create_mongo_db(cls) -> Database:
         try:
-            mongo_url = cls._require_env("MONGO_URL")
-            db_name = cls._require_env("MONGO_DB_NAME")
+            settings = get_settings()
+            mongo_url = settings.mongo_url
+            db_name = settings.mongo_db_name
 
             # 1. 实例化客户端
             client = MongoClient(mongo_url)

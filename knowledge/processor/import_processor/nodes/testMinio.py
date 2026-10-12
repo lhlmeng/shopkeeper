@@ -1,4 +1,3 @@
-from knowledge.utils.clients.ai_clients import AIClients
 from knowledge.utils.clients.storage_clients import StorageClients
 
 

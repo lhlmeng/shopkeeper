@@ -1,7 +1,7 @@
 import os
 import logging
 import threading
-from typing import TypeVar, Optional
+from typing import TypeVar
 
 logger = logging.getLogger(__name__)
 

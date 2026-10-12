@@ -7,6 +7,7 @@ from typing import TypeVar, Optional
 import logging
 from knowledge.processor.query_processor.config import QueryConfig, get_config
 from knowledge.processor.query_processor.exceptions import QueryProcessError
+from knowledge.core.logging import configure_logging
 from knowledge.utils.sse_util import push_sse_event, SSEEvent
 from knowledge.utils.task_util import add_running_task, add_done_task, get_task_status, get_running_task_list, \
     get_done_task_list
@@ -126,11 +127,7 @@ class BaseNode(ABC):
         Args:
             level: 日志级别，默认 INFO。
         """
-        logging.basicConfig(
-            level=level,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
+        configure_logging()
 
     def _push_progress(self, task_id:str):
         push_sse_event(

@@ -10,6 +10,7 @@ import logging
 
 from knowledge.processor.import_processor.config import ImportConfig, get_config
 from knowledge.processor.import_processor.exceptions import ImportProcessError
+from knowledge.core.logging import configure_logging
 
 T = TypeVar("T")  # 泛型状态类型
 
@@ -118,8 +119,4 @@ def setup_logging(level: int = logging.INFO):
     Args:
         level: 日志级别
     """
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+    configure_logging()

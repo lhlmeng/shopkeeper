@@ -1,4 +1,3 @@
-import logging
 import os.path
 import shutil
 import time
@@ -7,6 +6,8 @@ from datetime import datetime
 
 from fastapi import UploadFile
 
+from knowledge.core.config import get_settings
+from knowledge.core.logging import get_logger
 from knowledge.core.paths import get_local_base_dir
 from knowledge.processor.import_processor.exceptions import FileProcessingError
 from knowledge.processor.import_processor.main_graph import import_app
@@ -14,11 +15,10 @@ from knowledge.utils.clients.storage_clients import StorageClients
 from knowledge.utils.task_util import update_task_status, TASK_STATUS_PROCESSING, TASK_STATUS_FAILED, \
     TASK_STATUS_COMPLETED, add_running_task, add_done_task, add_node_duration
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 class FileProcessService:
     def run_main_graph(self,import_file_path:str,file_dir:str,task_id:str):
-        logging.basicConfig(level=logging.INFO)
         #1. 定义state
         state = {
             "task_id": task_id,
@@ -28,7 +28,7 @@ class FileProcessService:
         try:
             for event in import_app.stream(state):
                 for node_name, state in event.items():
-                    print(f"{node_name}正在执行......")
+                    logger.info("%s 正在执行", node_name)
 
             # 代表整个任务执行完成
             update_task_status(task_id,TASK_STATUS_COMPLETED)
@@ -99,7 +99,7 @@ class FileProcessService:
             return
 
         #2. 保存文件
-        bucket_name = os.getenv("MINIO_BUCKET_NAME")
+        bucket_name = get_settings().minio_bucket_name
         object_name =  f"origin_files/{datetime.now().strftime('%Y%m%d')}/{filename}"
 
         try:

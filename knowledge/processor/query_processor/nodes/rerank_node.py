@@ -1,6 +1,7 @@
 import math
 from typing import Any, Dict, List
-from knowledge.processor.query_processor.base import BaseNode, T
+from knowledge.processor.query_processor.base import BaseNode
+from knowledge.processor.query_processor.exceptions import RerankError
 from knowledge.processor.query_processor.state import QueryGraphState
 from knowledge.utils.clients.ai_clients import AIClients
 
@@ -97,16 +98,16 @@ class RerankNode(BaseNode):
         try:
             rerank_client = AIClients.get_bge_m3_rerank_client()
         except Exception as e:
-            self.logger.warn(f"获取Rerank模型对象失败,{e}")
-            return [{**doc,"score":None} for doc in final_docs]
+            self.logger.error(f"获取Rerank模型对象失败,{e}")
+            raise RerankError(node_name=self.name, message=f"获取Rerank模型对象失败,{e}") from e
         #3. 调用模型进行得分计算
         try:
             scores = rerank_client.compute_score(question_document_pairs)
-
-            return [{**doc,"score":self._sigmoid(score)} for doc,score in zip(final_docs,scores)]
         except Exception as e:
-            self.logger.warn(f"调用Rerank模型计算相关性得分失败,{e}")
-            return [{**doc, "score": None} for doc in final_docs]
+            self.logger.error(f"调用Rerank模型计算相关性得分失败,{e}")
+            raise RerankError(node_name=self.name, message=f"调用Rerank模型计算相关性得分失败,{e}") from e
+
+        return [{**doc,"score":self._sigmoid(score)} for doc,score in zip(final_docs,scores)]
 
     def _cliff_cutoff(self, sorted_doc_score:List[Dict[str,Any]], rerank_min_top_k:int, rerank_max_top_k:int, rerank_gap_abs:float) -> List[Dict[str,Any]]:
         #1. 定义截取的上边界

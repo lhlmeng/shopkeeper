@@ -1,15 +1,12 @@
-"""
-导入流程配置管理模块
+"""导入流程配置管理模块。
 
-集中管理所有配置项，支持环境变量覆盖
+所有环境变量统一由 ``knowledge.core.config`` 读取。
 """
 
 from dataclasses import dataclass, field
-from typing import Set, Optional
-import os
-from dotenv import load_dotenv
+from typing import Optional, Set
 
-load_dotenv()
+from knowledge.core.config import get_settings
 
 
 @dataclass
@@ -29,63 +26,31 @@ class ImportConfig:
     )
 
     # ==================== LLM 配置 ====================
-    openai_api_base: str = field(
-        default_factory=lambda: os.getenv("OPENAI_API_BASE", "")
-    )
-    openai_api_key: str = field(
-        default_factory=lambda: os.getenv("OPENAI_API_KEY", "")
-    )
-    vl_model: str = field(
-        default_factory=lambda: os.getenv("VL_MODEL", "")
-    )
-    item_model: str = field(
-        default_factory=lambda: os.getenv("ITEM_MODEL", "")
-    )
-    default_model: str = field(
-        default_factory=lambda: os.getenv("MODEL", "")
-    )
+    openai_api_base: str = ""
+    openai_api_key: str = ""
+    vl_model: str = ""
+    item_model: str = ""
+    default_model: str = ""
 
-    mineru_api_token: str = field(
-        default_factory=lambda: os.getenv("MINERU_API_TOKEN", "")
-    )
-    mineru_base_url: str = field(
-        default_factory=lambda: os.getenv("MINERU_BASE_URL", "")
-    )
+    mineru_api_token: str = ""
+    mineru_base_url: str = ""
 
     # ==================== Milvus 配置 ====================
-    milvus_url: str = field(
-        default_factory=lambda: os.getenv("MILVUS_URL", "")
-    )
-    chunks_collection: str = field(
-        default_factory=lambda: os.getenv("CHUNKS_COLLECTION", "")
-    )
-    item_name_collection: str = field(
-        default_factory=lambda: os.getenv("ITEM_NAME_COLLECTION", "")
-    )
-    entity_name_collection: str = field(
-        default_factory=lambda: os.getenv("ENTITY_NAME_COLLECTION", "")
-    )
+    milvus_url: str = ""
+    chunks_collection: str = ""
+    item_name_collection: str = ""
+    entity_name_collection: str = ""
 
 
     # ==================== MinIO 配置 ====================
-    minio_endpoint: str = field(
-        default_factory=lambda: os.getenv("MINIO_ENDPOINT", "")
-    )
-    minio_access_key: str = field(
-        default_factory=lambda: os.getenv("MINIO_ACCESS_KEY", "")
-    )
-    minio_secret_key: str = field(
-        default_factory=lambda: os.getenv("MINIO_SECRET_KEY", "")
-    )
-    minio_bucket: str = field(
-        default_factory=lambda: os.getenv("MINIO_BUCKET_NAME", "")
-    )
+    minio_endpoint: str = ""
+    minio_access_key: str = ""
+    minio_secret_key: str = ""
+    minio_bucket: str = ""
     minio_secure: bool = False
 
     # ==================== 向量配置 ====================
-    embedding_dim: int = field(
-        default_factory=lambda: int(os.getenv("EMBEDDING_DIM", "1024"))
-    )
+    embedding_dim: int = 1024
     embedding_batch_size: int = 8
 
     # ==================== 速率限制 ====================
@@ -94,7 +59,25 @@ class ImportConfig:
     @classmethod
     def from_env(cls) -> "ImportConfig":
         """从环境变量加载配置"""
-        return cls()
+        settings = get_settings()
+        return cls(
+            openai_api_base=settings.openai_api_base,
+            openai_api_key=settings.openai_api_key,
+            vl_model=settings.vl_model,
+            item_model=settings.item_model,
+            default_model=settings.llm_default_model,
+            mineru_api_token=settings.mineru_api_token,
+            mineru_base_url=settings.mineru_base_url,
+            milvus_url=settings.milvus_url,
+            chunks_collection=settings.chunks_collection,
+            item_name_collection=settings.item_name_collection,
+            entity_name_collection=settings.entity_name_collection,
+            minio_endpoint=settings.minio_endpoint,
+            minio_access_key=settings.minio_access_key,
+            minio_secret_key=settings.minio_secret_key,
+            minio_bucket=settings.minio_bucket_name,
+            embedding_dim=settings.embedding_dim,
+        )
 
     # http://192.168.200.130:9000/
     def get_minio_base_url(self):

@@ -2,7 +2,6 @@
 
 定义完整的查询状态结构和辅助函数。
 """
-import dataclasses
 from typing import TypedDict, List
 import copy
 

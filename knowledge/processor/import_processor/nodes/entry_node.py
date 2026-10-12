@@ -1,7 +1,6 @@
-import logging
 from pathlib import Path
 
-from knowledge.processor.import_processor.base import BaseNode, T
+from knowledge.processor.import_processor.base import BaseNode
 from knowledge.processor.import_processor.exceptions import StateFieldError,ValidationError
 from knowledge.processor.import_processor.state import ImportGraphState
 
@@ -28,11 +27,11 @@ class EntryNode(BaseNode):
         import_file_path_obj = Path(import_file_path)
         file_dir_obj = Path(file_dir)
         if not import_file_path_obj.exists():
-            self.logger.error(f"import_file_path not exist")
+            self.logger.error("import_file_path not exist")
             raise StateFieldError(node_name=self.name, field_name="import_file_path", expected_type=Path)
 
         if not file_dir_obj.exists():
-            self.logger.error(f"file_dir not exist")
+            self.logger.error("file_dir not exist")
             raise StateFieldError(node_name=self.name, field_name="file_dir", expected_type=Path)
 
         # 3. 判断文件类型
@@ -62,7 +61,9 @@ class EntryNode(BaseNode):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    from knowledge.core.logging import configure_logging
+
+    configure_logging()
 
 
     entry_node = EntryNode()
